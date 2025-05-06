@@ -11,9 +11,21 @@ class RecipeGeneratorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recipe Generator',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Roboto',
+        cardTheme: CardTheme(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.teal,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+        ),
       ),
       home: SplashScreen(),
     );

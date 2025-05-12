@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Chinoise',
     'Végétarienne',
   ];
-  final List<String> languages = ['Français', 'Anglais', 'Malagasy'];
+  final List<String> languages = ['Français', 'Anglais'];
 
   void _showSnack(String message) {
     ScaffoldMessenger.of(
@@ -48,9 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final languagePrompt =
         _language == 'Français'
             ? 'en français'
-            : _language == 'Anglais'
-            ? 'in English'
-            : 'amin\'ny teny Malagasy';
+            : 'in English';
 
     final prompt = '''
 Génère une recette $languagePrompt avec ces ingrédients : ${ingredients.join(', ')}.
@@ -126,7 +124,7 @@ Structure :
         child: Column(
           children: [
             CustomTextCard(
-              label: 'Ingrédients (ex. riz, poulet)',
+              label: 'Ingrédients en Français (ex. riz, poulet)',
               icon: Icons.food_bank,
               controller: _ingredientsController,
             ),

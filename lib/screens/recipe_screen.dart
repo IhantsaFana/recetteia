@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 extension StringExtension on String {
   String capitalize() {
-    if (this == null || isEmpty) return this;
+    if (isEmpty) return this;
     return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
   }
 }
@@ -11,7 +11,7 @@ extension StringExtension on String {
 class RecipeScreen extends StatelessWidget {
   final String recipeText;
 
-  RecipeScreen({required this.recipeText});
+  const RecipeScreen({super.key, required this.recipeText});
 
   Map<String, dynamic> _parseRecipeText(String text) {
     final lines = text.split('\n');
@@ -24,9 +24,10 @@ class RecipeScreen extends StatelessWidget {
       line = line.trim().replaceAll('**', '');
       if (line.isEmpty) continue;
 
-      if (line.contains('Ingrédients')) {
+      if (line.toLowerCase().contains('ingrédient')) {
         currentSection = 'ingredients';
-      } else if (line.contains('Instructions')) {
+      } else if (line.toLowerCase().contains('instruction') ||
+                 line.toLowerCase().contains('préparation')) {
         currentSection = 'instructions';
       } else if (currentSection.isEmpty &&
           !line.startsWith('-') &&
@@ -42,20 +43,14 @@ class RecipeScreen extends StatelessWidget {
       }
     }
 
-    // Nettoyage des ingrédients pour gérer les unités (ex. "500g de poulet")
-    final cleanedIngredients =
-        ingredients.map((ing) {
-          final parts = ing.split(
-            RegExp(
-              r'\s+(de|d'
-              ')\s*',
-            ),
-          );
-          if (parts.length > 1) {
-            return '${parts[0].trim()} ${parts.sublist(1).join(' ').trim().capitalize()}';
-          }
-          return ing;
-        }).toList();
+    // Nettoyage des ingrédients : gestion du "de" ou "d'"
+    final cleanedIngredients = ingredients.map((ing) {
+      final parts = ing.split(RegExp(r"\s+(de|d')\s*"));
+      if (parts.length > 1) {
+        return '${parts[0].trim()} ${parts.sublist(1).join(' ').trim().capitalize()}';
+      }
+      return ing;
+    }).toList();
 
     return {
       'title': title,
@@ -70,191 +65,62 @@ class RecipeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          recipeData['title'],
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
+        title: Text(recipeData['title']),
         backgroundColor: Colors.teal,
         actions: [
           IconButton(
-            icon: Icon(Icons.share, color: Colors.white),
+            icon: Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: recipeText));
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Recette copiée dans le presse-papiers'),
-                ),
+                SnackBar(content: Text('Recette copiée !')),
               );
             },
-          ),
+          )
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 6,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Titre avec icône décorative
-                Row(
-                  children: [
-                    Icon(Icons.restaurant_menu, color: Colors.teal, size: 30),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        recipeData['title'],
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal[700],
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                // Section Ingrédients
-                Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  color: Colors.teal[50],
-                  child: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ingrédients',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal[800],
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        ...recipeData['ingredients'].map<Widget>(
-                          (ingredient) => Padding(
-                            padding: EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  Icons.circle,
-                                  size: 8,
-                                  color: Colors.teal[600],
-                                ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    ingredient,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[800],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                // Section Instructions
-                Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  color: Colors.teal[50],
-                  child: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Instructions',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal[800],
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        ...recipeData['instructions']
-                            .asMap()
-                            .entries
-                            .map<Widget>(
-                              (entry) => Padding(
-                                padding: EdgeInsets.only(bottom: 12.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${entry.key + 1}.',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.teal[600],
-                                      ),
-                                    ),
-                                    SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        entry.value,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.grey[800],
-                                          height: 1.5,
-                                        ),
-                                        textAlign: TextAlign.justify,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                // Bouton Retour
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Retour',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle('Ingrédients', Icons.kitchen),
+            ...recipeData['ingredients'].map<Widget>((ingredient) => Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4.0),
+                  child: Text('- $ingredient'),
+                )),
+            SizedBox(height: 24),
+            _buildSectionTitle('Instructions', Icons.list_alt),
+            ...recipeData['instructions'].asMap().entries.map<Widget>((entry) {
+              final index = entry.key + 1;
+              final step = entry.value;
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('$index. $step'),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.teal),
+          SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal[800],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

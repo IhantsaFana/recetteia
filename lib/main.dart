@@ -6,10 +6,12 @@ void main() {
 }
 
 class RecipeGeneratorApp extends StatelessWidget {
+  const RecipeGeneratorApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Recipe Generator',
+      title: 'Recipe AI',
       theme: ThemeData(
         primarySwatch: Colors.teal,
         visualDensity: VisualDensity.adaptivePlatformDensity,

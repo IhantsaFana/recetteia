@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
               Icon(Icons.restaurant_menu, size: 80, color: Colors.white),
               SizedBox(height: 20),
               Text(
-                'Recipe Generator',
+                'Recipe AI',
                 style: TextStyle(
                   fontSize: 32,
                   color: Colors.white,

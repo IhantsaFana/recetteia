@@ -14,3 +14,10 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Config `.env`
+
+```bash
+CHEFGPT_API_KEY=your_api_key_here
+PORT=3000
+```

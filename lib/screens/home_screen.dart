@@ -28,27 +28,22 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<String> languages = ['Français', 'Anglais'];
 
   void _showSnack(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _generateRecipe() async {
     final rawIngredients = _ingredientsController.text.trim();
-    if (rawIngredients.isEmpty) {
-      _showSnack('Veuillez entrer des ingrédients');
+
+    if (rawIngredients.isEmpty || !rawIngredients.contains(',')) {
+      _showSnack('Veuillez entrer au moins deux ingrédients séparés par des virgules.');
       return;
     }
 
     setState(() => _isLoading = true);
 
     final ingredients = rawIngredients.split(',').map((e) => e.trim()).toList();
-    final mealType =
-        _cuisine.toLowerCase() == 'végétarienne' ? 'végétarien' : 'dîner';
-    final languagePrompt =
-        _language == 'Français'
-            ? 'en français'
-            : 'in English';
+    final mealType = _cuisine.toLowerCase() == 'végétarienne' ? 'végétarien' : 'dîner';
+    final languagePrompt = _language == 'Français' ? 'en français' : 'in English';
 
     final prompt = '''
 Génère une recette $languagePrompt avec ces ingrédients : ${ingredients.join(', ')}.
@@ -81,23 +76,25 @@ Structure :
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final recipeText =
-            json['candidates']?[0]['content']['parts'][0]['text'] ??
-            'Aucune recette générée';
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => RecipeScreen(recipeText: recipeText),
-            transitionsBuilder:
-                (_, animation, __, child) =>
-                    FadeTransition(opacity: animation, child: child),
-          ),
-        );
+        final recipeText = json['candidates']?[0]['content']?['parts']?[0]?['text'];
+
+        if (recipeText == null || recipeText.toString().trim().isEmpty) {
+          _showSnack('La réponse de l\'API est vide ou invalide.');
+        } else {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => RecipeScreen(recipeText: recipeText),
+              transitionsBuilder: (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+            ),
+          );
+        }
       } else {
         _handleApiError(response.statusCode);
       }
     } catch (e) {
-      _showSnack('Erreur réseau : vérifiez votre connexion internet');
+      _showSnack('Erreur réseau ou format de réponse invalide.');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -105,11 +102,12 @@ Structure :
 
   void _handleApiError(int code) {
     final messages = {
-      400: 'Requête mal formée',
-      401: 'Clé API Gemini invalide',
-      429: 'Limite de requêtes atteinte',
+      400: 'Requête mal formée (400)',
+      401: 'Clé API Gemini invalide (401)',
+      429: 'Limite de requêtes atteinte (429)',
+      500: 'Erreur interne du serveur (500)',
     };
-    _showSnack(messages[code] ?? 'Erreur API : $code');
+    _showSnack(messages[code] ?? 'Erreur API inconnue : $code');
   }
 
   @override
@@ -147,9 +145,7 @@ Structure :
             const SizedBox(height: 16),
             Card(
               elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -180,25 +176,24 @@ Structure :
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Center(
-            child:
-                _isLoading
-                    ? const SpinKitFadingCircle(color: Colors.white, size: 40.0)
-                    : ElevatedButton.icon(
-                      onPressed: _generateRecipe,
-                      icon: const Icon(Icons.restaurant_menu),
-                      label: const Text('Générer Recette'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.teal,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32.0,
-                          vertical: 12.0,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+            child: _isLoading
+                ? const SpinKitFadingCircle(color: Colors.white, size: 40.0)
+                : ElevatedButton.icon(
+                    onPressed: _generateRecipe,
+                    icon: const Icon(Icons.restaurant_menu),
+                    label: const Text('Générer Recette'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.teal,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0,
+                        vertical: 12.0,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
+                  ),
           ),
         ),
       ),
@@ -212,7 +207,6 @@ Structure :
   }
 }
 
-// Widget personnalisé : Champ de texte dans une carte
 class CustomTextCard extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -244,7 +238,6 @@ class CustomTextCard extends StatelessWidget {
   }
 }
 
-// Widget personnalisé : Dropdown dans une carte
 class CustomDropdownCard extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -276,12 +269,9 @@ class CustomDropdownCard extends StatelessWidget {
             prefixIcon: Icon(icon, color: Colors.teal),
           ),
           onChanged: onChanged,
-          items:
-              items
-                  .map(
-                    (item) => DropdownMenuItem(value: item, child: Text(item)),
-                  )
-                  .toList(),
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
         ),
       ),
     );

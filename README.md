@@ -1,6 +1,13 @@
 ## Recette Générée - Application de Génération de Recettes IA
 Bienvenue dans Recette Générée, une application mobile développée avec Flutter qui utilise l'API Google Gemini pour générer des recettes personnalisées à partir d'ingrédients, de types de cuisine et de durées de préparation. Cette application est conçue pour offrir une expérience utilisateur moderne et intuitive, compatible avec Android et iOS.
 
+
+## Capture d'écran :
+<img src="" alt=""/>
+<img src="" alt=""/>
+<img src="" alt=""/>
+<img src="" alt=""/>
+
 ## Description du Projet
 Recette Générée permet aux utilisateurs de :
 `

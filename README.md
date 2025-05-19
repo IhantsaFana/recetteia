@@ -103,7 +103,7 @@ flutter build apk --release
 ```
 
 ## 🧪 Tester la Génération de Recette
-`
+
     Entrez des ingrédients sur l’écran d’accueil
 
     Sélectionnez un type de cuisine
@@ -113,4 +113,3 @@ flutter build apk --release
     Appuyez sur "Générer Recette"
 
     La recette apparaît sur RecipeScreen
-`

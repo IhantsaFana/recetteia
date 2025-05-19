@@ -8,10 +8,13 @@ Bienvenue dans **Recette Générée**, une application mobile Flutter qui utilis
 
 ## 📸 Captures d'Écran
 
-<img src="/Screenshot_2025-05-17-18-14-31-73.jpg" alt="Home Page" width="200"/>
-<img src="/Screenshot_2025-05-17-18-14-38-25.jpg" alt="Cuisine selection" width="200"/>
-<img src="/Screenshot_2025-05-17-18-14-51-47.jpg" alt="Durée" width="200"/>
-<img src="/Screenshot_2025-05-17-18-14-54-07.jpg" alt="Recette générée" width="200"/>
+<p align="center">
+  <img src="/Screenshot_2025-05-17-18-14-31-73.jpg" alt="Home" width="200"/>
+  <img src="/Screenshot_2025-05-17-18-14-38-25.jpg" alt="Cuisine" width="200"/>
+  <img src="/Screenshot_2025-05-17-18-14-51-47.jpg" alt="Durée" width="200"/>
+  <img src="/Screenshot_2025-05-17-18-14-54-07.jpg" alt="Recette" width="200"/>
+</p>
+
 
 ---
 
